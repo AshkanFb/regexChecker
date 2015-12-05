@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.regex.*;
 
 
 public class Checker {
@@ -11,12 +12,12 @@ public class Checker {
 		String s = in.nextLine();
 		Regex r = new Regex(s);
 		
-		Enumerator e = new Enumerator(s);
+		Enumerator e = new Enumerator(s, s);
 		int largestDistance = 0;
 		
 		// to see enumerations, uncomment below
 		/*
-		for (long i = 0;  i<100 ; i++) {
+		for (long i = 0; i < 1000 ; i++) {
 			Regex re= e.getNext();
 			if (re.getDistance() > largestDistance) {
 				largestDistance = re.getDistance();
@@ -28,8 +29,9 @@ public class Checker {
 		
 		// to just enumerate, uncomment below
 		//*
-		for (long i = 0;  true ; i++) {
+		for (long i = 0; true; i++) {
 			Regex re= e.getNext();
+			
 			if (re.getDistance() > largestDistance) {
 				largestDistance = re.getDistance();
 				System.out.println(largestDistance + " after " + i);

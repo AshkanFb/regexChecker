@@ -6,7 +6,10 @@ import java.util.Stack;
 public class Regex {
 	// TODO avoid having epsilon in concatenations
 	// TODO avoid having disjunction with similar children
+	// TODO implement star add changes
+	// TODO implement refining changes
 
+	// I pretend that 235 is epsilon :)
 	public static final char EPS = 235;
 
 	// the tree root
@@ -26,6 +29,10 @@ public class Regex {
 	private ArrayList<Character> alphabet;
 	// Distance from initial regex
 	private int distance;
+	// shows whether or not the regex passes all the current positive tests
+	private boolean readyToRefineFlag;
+	// shows whether or not we have entered the refining process
+	private boolean refiningStartedFlag;
 
 	public Regex (String regex) {
 
@@ -44,6 +51,8 @@ public class Regex {
 		changeRoot = root;
 		modRangeRoot = root;
 		distance = 0;
+		readyToRefineFlag = false;
+		refiningStartedFlag = false;
 	}
 
 	//Copy Constructor
@@ -53,6 +62,8 @@ public class Regex {
 		for (char ch : re.alphabet)
 			alphabet.add(ch);
 		distance = re.distance;
+		readyToRefineFlag = re.readyToRefineFlag;
+		refiningStartedFlag = re.refiningStartedFlag;
 
 		switch (re.root.getClass().getName()) {
 			case "DisNode":
@@ -521,6 +532,18 @@ public class Regex {
 
 	public int getDistance() {
 		return distance;
+	}
+	
+	public boolean isRefiningStarted() {
+		return refiningStartedFlag;
+	}
+	
+	public boolean isReadyToRefine() {
+		return readyToRefineFlag;
+	}
+	
+	public void setReadyToRefineFlag(boolean readyToRefineFlag) {
+		this.readyToRefineFlag = readyToRefineFlag;
 	}
 
 	@Override

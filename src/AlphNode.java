@@ -25,7 +25,8 @@ public class AlphNode extends Node {
 	
 	@Override
 	public String toString() {
-		return val + "";
+		// here, choose whether you want to explicitly show epsilon
+		return (val == Regex.EPS ? Regex.EPS : val) + "";
 	}
 	
 }
