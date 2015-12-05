@@ -259,7 +259,7 @@ public class Regex {
 		}
 
 		for (int i = startPos; i < changeRoot.getSize(); i++) {
-			// change child & enumerate
+			// change child & enumerate 
 			if (alreadyEnumeratedChild != ((DotNode)changeRoot).getChild(i)) {
 				Regex temp = new Regex(this);
 				temp.changeRoot = ((DotNode)(temp.changeRoot)).getChild(i);
