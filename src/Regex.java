@@ -4,7 +4,7 @@ import java.util.Stack;
 
 
 public class Regex {
-	// TODO avoid having epsilon in concats
+	// TODO avoid having epsilon in concatenations
 	// TODO avoid having disjunction with similar children
 
 	public static final char EPS = 235;
@@ -175,7 +175,7 @@ public class Regex {
 		base.changeRoot = base.modRangeRoot;
 		ret = base.modEnum();
 
-		//	ret.addAll(base.expEnum());
+		ret.addAll(base.expEnum());
 
 		return ret;
 	}
@@ -387,8 +387,8 @@ public class Regex {
 			Node oldNode = temp.changeRoot;
 			DisNode node = new DisNode(oldNode.getParent());
 			node.addChild(oldNode);
-			oldNode.setParent(node);
 			temp.replaceNode(oldNode, node);
+			oldNode.setParent(node);
 			ret.addAll(temp.disNodeExpEnum(oldNode));
 		}
 
@@ -411,8 +411,8 @@ public class Regex {
 			Node oldNode = temp.changeRoot;
 			DisNode node = new DisNode(oldNode.getParent());
 			node.addChild(oldNode);
-			oldNode.setParent(node);
 			temp.replaceNode(oldNode, node);
+			oldNode.setParent(node);
 			ret.addAll(temp.disNodeExpEnum(oldNode));
 		}
 
@@ -432,8 +432,8 @@ public class Regex {
 			Node oldNode = temp.changeRoot;
 			DisNode node = new DisNode(oldNode.getParent());
 			node.addChild(oldNode);
-			oldNode.setParent(node);
 			temp.replaceNode(oldNode, node);
+			oldNode.setParent(node);
 			ret.addAll(temp.disNodeExpEnum(oldNode));
 		}
 
