@@ -2,6 +2,13 @@ import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.Stack;
 
+/**
+ * 
+ * This class represents a regular expression.
+ * 
+ * @author Ashkan Forouhi ashkanfb@cs.wisc.edu
+ *
+ */
 
 public class Regex {
 	// TODO avoid having epsilon in concatenations

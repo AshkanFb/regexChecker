@@ -1,5 +1,12 @@
 import java.util.ArrayList;
 
+/**
+ * 
+ * A concatenation node.
+ * 
+ * @author Ashkan Forouhi ashkanfb@cs.wisc.edu
+ *
+ */
 
 public class DotNode extends Node {
 

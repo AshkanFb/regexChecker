@@ -1,4 +1,12 @@
 
+/**
+ * 
+ * An alphabet/epsilon node.
+ * 
+ * @author Ashkan Forouhi ashkanfb@cs.wisc.edu
+ *
+ */
+
 public class AlphNode extends Node {
 	
 	private char val;

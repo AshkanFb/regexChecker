@@ -1,4 +1,12 @@
 
+/**
+ * 
+ * A general node in the regex tree. 
+ * 
+ * @author Ashkan Forouhi ashkanfb@cs.wisc.edu
+ *
+ */
+
 public class Node {
 	
 	private Node parent;

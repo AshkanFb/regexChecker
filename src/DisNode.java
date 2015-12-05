@@ -1,5 +1,12 @@
 import java.util.ArrayList;
 
+/**
+ * 
+ * A disjunction node.
+ * 
+ * @author Ashkan Forouhi ashkanfb@cs.wisc.edu
+ *
+ */
 
 public class DisNode extends Node {
 	

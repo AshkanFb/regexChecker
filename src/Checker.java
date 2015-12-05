@@ -1,6 +1,12 @@
 import java.util.Scanner;
-import java.util.regex.*;
 
+/**
+ * 
+ * Main class for the checker.
+ * 
+ * @author Ashkan Forouhi ashkanfb@cs.wisc.edu
+ *
+ */
 
 public class Checker {
 	

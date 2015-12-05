@@ -1,3 +1,12 @@
+
+/**
+ * 
+ * A star node.
+ * 
+ * @author Ashkan Forouhi ashkanfb@cs.wisc.edu
+ *
+ */
+
 public class StarNode extends Node {
 
 	private Node child;

@@ -1,6 +1,14 @@
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+/**
+ * This class is the regular expression enumerator. We start with an initial
+ * regex and a target regex, and try to enumerate different changes to initial
+ * in order to get to target.
+ * 
+ * @author Ashkan Forouhi ashkanfb@cs.wisc.edu
+ *
+ */
 
 public class Enumerator {
 	private Regex initial;
