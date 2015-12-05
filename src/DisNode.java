@@ -11,23 +11,18 @@ public class DisNode extends Node {
 	}
 	
 	// Copy Constructor
-	public DisNode(DisNode other, Node parent, Regex re, Node changeNode, 
-			Node changeRoot, Node changeRangeRoot) {
-		super(other, parent, re, changeNode, changeRoot, changeRangeRoot);
+	public DisNode(DisNode other, Node parent, Regex re, Regex otherRE) {
+		super(other, parent, re, otherRE);
 		children = new ArrayList<Node>();
 		for (Node ch : other.children) {
 			if (ch.getClass().getName().equals("DisNode"))
-				children.add(new DisNode((DisNode)ch, this, re, 
-									changeNode, changeRoot, changeRangeRoot));
+				children.add(new DisNode((DisNode)ch, this, re, otherRE));
 			else if (ch.getClass().getName().equals("DotNode")) 
-				children.add(new DotNode((DotNode)ch, this, re,
-									changeNode, changeRoot, changeRangeRoot));
+				children.add(new DotNode((DotNode)ch, this, re, otherRE));
 			else if (ch.getClass().getName().equals("StarNode")) 
-				children.add(new StarNode((StarNode)ch, this, re,
-									changeNode, changeRoot, changeRangeRoot));
+				children.add(new StarNode((StarNode)ch, this, re, otherRE));
 			else if (ch.getClass().getName().equals("AlphNode")) 
-				children.add(new AlphNode((AlphNode)ch, this, re,
-									changeNode, changeRoot, changeRangeRoot));	
+				children.add(new AlphNode((AlphNode)ch, this, re, otherRE));	
 		}	
 	}
 	

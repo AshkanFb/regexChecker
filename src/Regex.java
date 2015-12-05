@@ -4,6 +4,8 @@ import java.util.Stack;
 
 
 public class Regex {
+	// TODO avoid having epsilon in concats
+	// TODO avoid having disjunction with similar children
 
 	public static final char EPS = 235;
 
@@ -11,8 +13,10 @@ public class Regex {
 	private Node root;
 	// We only need this for initial parsing
 	private static int parserIndex;
-	// Last Node that was changed
+	// Last Node that was changed by a modifying change
 	private Node changeNode;
+	// Last Node that was changed by an expanding change
+	private Node expChangeNode;
 	// The root of subtree we want to change now
 	private Node changeRoot;
 	// The root of all possible mod changes subtree. Usually this is the root,
@@ -36,6 +40,7 @@ public class Regex {
 		root.eatChildren();
 
 		changeNode = root;
+		expChangeNode = root;
 		changeRoot = root;
 		modRangeRoot = root;
 		distance = 0;
@@ -51,20 +56,16 @@ public class Regex {
 
 		switch (re.root.getClass().getName()) {
 			case "DisNode":
-				root = new DisNode((DisNode)re.root, null, this, 
-						re.changeNode, re.changeRoot, re.modRangeRoot);
+				root = new DisNode((DisNode)re.root, null, this, re);
 				break;
 			case "DotNode":
-				root = new DotNode((DotNode)re.root, null, this, 
-						re.changeNode, re.changeRoot, re.modRangeRoot);
+				root = new DotNode((DotNode)re.root, null, this, re);
 				break;
 			case "StarNode":
-				root = new StarNode((StarNode)re.root, null, this, 
-						re.changeNode, re.changeRoot, re.modRangeRoot);
+				root = new StarNode((StarNode)re.root, null, this, re);
 				break;
 			case "AlphNode":
-				root = new AlphNode((AlphNode)re.root, null, this, 
-						re.changeNode, re.changeRoot, re.modRangeRoot);
+				root = new AlphNode((AlphNode)re.root, null, this, re);
 				break;
 		}
 	}
@@ -442,13 +443,33 @@ public class Regex {
 	public void setChangeNode(Node changeNode) {
 		this.changeNode = changeNode;
 	}
+	
+	public void setExpChangeNode(Node expChangeNode) {
+		this.expChangeNode = expChangeNode;
+	}
 
 	public void setChangeRoot(Node changeRoot) {
 		this.changeRoot = changeRoot;
 	}
 
-	public void setChangeRangeRoot(Node changeRangeRoot) {
-		this.modRangeRoot = changeRangeRoot;
+	public void setModRangeRoot(Node modRangeRoot) {
+		this.modRangeRoot = modRangeRoot;
+	}
+	
+	public Node getChangeNode() {
+		return changeNode;
+	}
+	
+	public Node getExpChangeNode() {
+		return expChangeNode;
+	}
+	
+	public Node getChangeRoot() {
+		return changeRoot;
+	}
+	
+	public Node getModRangeRoot() {
+		return modRangeRoot;
 	}
 
 	private void replaceNode (Node prev, Node next) {
@@ -458,6 +479,8 @@ public class Regex {
 			root = next;
 		if (changeNode == prev)
 			changeNode = next;
+		if (expChangeNode == prev)
+			expChangeNode = next;
 		if (changeRoot == prev)
 			changeRoot = next;
 		if (modRangeRoot == prev)

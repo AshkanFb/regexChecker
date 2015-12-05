@@ -8,15 +8,16 @@ public class Node {
 	}
 	
 	// Copy Constructor
-	public Node (Node other, Node parent, Regex re, Node changeNode, 
-						Node changeRoot, Node changeRangeRoot) {
+	public Node (Node other, Node parent, Regex re, Regex otherRE) {
 		this.parent = parent;
-		if (other == changeNode)
+		if (other == otherRE.getChangeNode())
 			re.setChangeNode(this);
-		if (other == changeRoot)
+		if (other == otherRE.getExpChangeNode())
+			re.setExpChangeNode(this);
+		if (other == otherRE.getChangeRoot())
 			re.setChangeRoot(this);
-		if (other == changeRangeRoot)
-			re.setChangeRangeRoot(this);
+		if (other == otherRE.getModRangeRoot())
+			re.setModRangeRoot(this);
 	}
 	
 	public int getSize() {

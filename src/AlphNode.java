@@ -9,9 +9,8 @@ public class AlphNode extends Node {
 	}
 	
 	// Copy Constructor
-	public AlphNode(AlphNode other, Node parent, Regex re, Node changeNode, 
-			Node changeRoot, Node changeRangeRoot) {
-		super(other, parent, re, changeNode, changeRoot, changeRangeRoot);
+	public AlphNode(AlphNode other, Node parent, Regex re, Regex otherRE) {
+		super(other, parent, re, otherRE);
 		val = other.val;	
 	}
 

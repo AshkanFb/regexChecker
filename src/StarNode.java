@@ -7,22 +7,17 @@ public class StarNode extends Node {
 	}
 
 	// Copy Constructor
-	public StarNode(StarNode other, Node parent, Regex re, Node changeNode, 
-			Node changeRoot, Node changeRangeRoot) {
-		super(other, parent, re, changeNode, changeRoot, changeRangeRoot);
+	public StarNode(StarNode other, Node parent, Regex re, Regex otherRE) {
+		super(other, parent, re, otherRE);
 
 		if (other.child.getClass().getName().equals("DisNode"))
-			child = new DisNode((DisNode)other.child, this, re, 
-					changeNode, changeRoot, changeRangeRoot);
+			child = new DisNode((DisNode)other.child, this, re, otherRE);
 		else if (other.child.getClass().getName().equals("DotNode")) 
-			child = new DotNode((DotNode)other.child, this, re,
-					changeNode, changeRoot, changeRangeRoot);
+			child = new DotNode((DotNode)other.child, this, re, otherRE);
 		else if (other.child.getClass().getName().equals("StarNode")) 
-			child = new StarNode((StarNode)other.child, this, re,
-					changeNode, changeRoot, changeRangeRoot);
+			child = new StarNode((StarNode)other.child, this, re, otherRE);
 		else if (other.child.getClass().getName().equals("AlphNode")) 
-			child = new AlphNode((AlphNode)other.child, this, re,
-					changeNode, changeRoot, changeRangeRoot);
+			child = new AlphNode((AlphNode)other.child, this, re, otherRE);
 
 	}
 
