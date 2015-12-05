@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EmptyStackException;
 import java.util.Stack;
 
@@ -170,16 +169,16 @@ public class Regex {
 	public ArrayList<Regex> enumeratePossibleChanges() {
 		Regex base = new Regex(this);	// we don't want to change 'this'!
 		ArrayList<Regex> ret;
-		
+
 		base.distance++;
 		base.changeRoot = base.modRangeRoot;
 		ret = base.modEnum();
-		
-	//	ret.addAll(base.expEnum());
-		
+
+		ret.addAll(base.expEnum());
+
 		return ret;
 	}
-	
+
 	private ArrayList<Regex> modEnum() {
 		switch (changeRoot.getClass().getName()) {
 			case "DisNode":
@@ -198,7 +197,7 @@ public class Regex {
 
 	private ArrayList<Regex> disNodeModEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
-		
+
 		//find the enumeration starting position, based on changeNode
 		int startPos = 0;
 		if (changeRoot != changeNode) {
@@ -210,7 +209,7 @@ public class Regex {
 			}
 			startPos = ((DisNode)changeRoot).getChildIndex(child);
 		}
-		
+
 		for (int i = startPos; i < changeRoot.getSize(); i++) {	
 			// change child & enumerate
 			Regex temp = new Regex(this);
@@ -219,7 +218,7 @@ public class Regex {
 				temp.changeNode = temp.changeRoot;
 			ret.addAll(temp.modEnum());
 		}
-		
+
 		if (changeRoot.getParent() == null || 
 				!changeRoot.getParent().getClass().getName().equals("DotNode")) {
 			Regex temp = new Regex(this);
@@ -236,7 +235,7 @@ public class Regex {
 
 	private ArrayList<Regex> dotNodeModEnum(Node alreadyEnumeratedChild) {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
-		
+
 		//find the enumeration starting position, based on changeNode
 		int startPos = 0;
 		if (changeRoot != changeNode) {
@@ -249,7 +248,8 @@ public class Regex {
 			startPos = ((DotNode)changeRoot).getChildIndex(child);
 		}
 		else {
-			// changeNode is same as changeRoot, so first, initial epsilon
+			// changeNode is same as changeRoot, so this branch has never 
+			// been enumerated before. So first, initial epsilon.
 			Regex temp = new Regex(this);
 			AlphNode newNode = new AlphNode(temp.changeRoot, EPS);
 			((DotNode)(temp.changeRoot)).addChild(0, newNode);
@@ -259,7 +259,8 @@ public class Regex {
 		}
 
 		for (int i = startPos; i < changeRoot.getSize(); i++) {
-			// change child & enumerate
+			// Recursively call for all children, except the one already 
+			// enumerated (if any). 
 			if (alreadyEnumeratedChild != ((DotNode)changeRoot).getChild(i)) {
 				Regex temp = new Regex(this);
 				temp.changeRoot = ((DotNode)(temp.changeRoot)).getChild(i);
@@ -267,7 +268,7 @@ public class Regex {
 					temp.changeNode = temp.changeRoot;
 				ret.addAll(temp.modEnum());
 			}
-			
+
 			// add epsilon & enumerate
 			Regex temp = new Regex(this);
 			AlphNode newNode = new AlphNode(temp.changeRoot, EPS);
@@ -289,7 +290,7 @@ public class Regex {
 		if (changeRoot == changeNode)
 			temp.changeNode = temp.changeRoot;
 		ret.addAll(temp.modEnum());
-		
+
 		if (changeRoot.getParent() == null || 
 				!changeRoot.getParent().getClass().getName().equals("DotNode")) {
 			temp = new Regex(this);
@@ -306,7 +307,7 @@ public class Regex {
 
 	private ArrayList<Regex> alphNodeModEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
-		
+
 		for (char ch : alphabet) {
 			if (ch != ((AlphNode)changeRoot).getChar()) {
 				Regex temp = new Regex(this);
@@ -315,7 +316,7 @@ public class Regex {
 				ret.add(temp);
 			}
 		}
-		
+
 		if (changeRoot.getParent() == null || 
 				!changeRoot.getParent().getClass().getName().equals("DotNode")) {
 			Regex temp = new Regex(this);
@@ -326,14 +327,14 @@ public class Regex {
 			oldNode.setParent(node);
 			ret.addAll(temp.dotNodeModEnum(oldNode));
 		}
-		
+
 		return ret;
 	}
-	
+
 	private ArrayList<Regex> expEnum() {
 		switch (changeRoot.getClass().getName()) {
 			case "DisNode":
-				return disNodeExpEnum();
+				return disNodeExpEnum(null);
 			case "DotNode":
 				return dotNodeExpEnum();
 			case "StarNode":
@@ -345,9 +346,9 @@ public class Regex {
 		}
 	}
 
-	private ArrayList<Regex> disNodeExpEnum() {
+	private ArrayList<Regex> disNodeExpEnum(Node alreadyEnumeratedChild) {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
-		
+
 		for (char ch : alphabet) {
 			Regex temp = new Regex(this);
 			AlphNode newNode = new AlphNode (temp.changeRoot, ch);
@@ -356,69 +357,76 @@ public class Regex {
 			temp.changeNode = newNode;
 			ret.add(temp);
 		}
-		
+
 		for (int i = 0; i < changeRoot.getSize(); i++) {	
-			Regex temp = new Regex(this);
-			temp.changeRoot = ((DisNode)(temp.changeRoot)).getChild(i);
-			ret.addAll(temp.expEnum());
+			// Recursively call for all children, except the one already 
+			// enumerated (if any). 
+			if (alreadyEnumeratedChild != ((DisNode)changeRoot).getChild(i)) {
+				Regex temp = new Regex(this);
+				temp.changeRoot = ((DisNode)(temp.changeRoot)).getChild(i);
+				ret.addAll(temp.expEnum());
+			}
 		}
-		
+
 		return ret;
 	}
 
 	private ArrayList<Regex> dotNodeExpEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
-		
+
 		if (changeRoot.getParent() == null || 
 				!changeRoot.getParent().getClass().getName().equals("DisNode")) {
 			Regex temp = new Regex(this);
-			DisNode node = new DisNode(temp.changeRoot.getParent());
-			node.addChild(temp.changeRoot);
-			temp.replaceNode(temp.changeRoot, node);
-			ret.addAll(temp.disNodeExpEnum());
+			Node oldNode = temp.changeRoot;
+			DisNode node = new DisNode(oldNode.getParent());
+			node.addChild(oldNode);
+			temp.replaceNode(oldNode, node);
+			ret.addAll(temp.disNodeExpEnum(oldNode));
 		}
-		
-		
+
+
 		for (int i = 0; i < changeRoot.getSize(); i++) {	
 			Regex temp = new Regex(this);
 			temp.changeRoot = ((DotNode)(temp.changeRoot)).getChild(i);
 			ret.addAll(temp.expEnum());
 		}
-		
+
 		return ret;
 	}
 
 	private ArrayList<Regex> starNodeExpEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
-		
+
 		if (changeRoot.getParent() == null || 
 				!changeRoot.getParent().getClass().getName().equals("DisNode")) {
 			Regex temp = new Regex(this);
-			DisNode node = new DisNode(temp.changeRoot.getParent());
-			node.addChild(temp.changeRoot);
-			temp.replaceNode(temp.changeRoot, node);
-			ret.addAll(temp.disNodeExpEnum());
+			Node oldNode = temp.changeRoot;
+			DisNode node = new DisNode(oldNode.getParent());
+			node.addChild(oldNode);
+			temp.replaceNode(oldNode, node);
+			ret.addAll(temp.disNodeExpEnum(oldNode));
 		}
-		
+
 		Regex temp = new Regex(this);
 		temp.changeRoot = ((StarNode)(temp.changeRoot)).getChild();
 		ret.addAll(temp.expEnum());
-		
+
 		return ret;
 	}
 
 	private ArrayList<Regex> alphNodeExpEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
-		Regex temp = new Regex(this);
 		
-		if (temp.changeRoot.getParent() == null || 
-				!temp.changeRoot.getParent().getClass().getName().equals("DisNode")) {
-			DisNode node = new DisNode(temp.changeRoot.getParent());
-			node.addChild(temp.changeRoot);
-			temp.replaceNode(temp.changeRoot, node);
-			ret.addAll(temp.disNodeExpEnum());
+		if (changeRoot.getParent() == null || 
+				!changeRoot.getParent().getClass().getName().equals("DisNode")) {
+			Regex temp = new Regex(this);
+			Node oldNode = temp.changeRoot;
+			DisNode node = new DisNode(oldNode.getParent());
+			node.addChild(oldNode);
+			temp.replaceNode(oldNode, node);
+			ret.addAll(temp.disNodeExpEnum(oldNode));
 		}
-		
+
 		return ret;
 	}
 
