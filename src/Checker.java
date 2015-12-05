@@ -14,14 +14,28 @@ public class Checker {
 		Enumerator e = new Enumerator(s);
 		int largestDistance = 0;
 		
-		for (long i = 0;  true; i++) {
+		// to see enumerations, uncomment below
+		/*
+		for (long i = 0;  i<100 ; i++) {
 			Regex re= e.getNext();
 			if (re.getDistance() > largestDistance) {
 				largestDistance = re.getDistance();
 				System.out.println(largestDistance + " after " + i);
 			}
-		//	System.out.println(i + "- " + re + " : " + re.getDistance());
+			System.out.println(i + "- " + re + " : " + re.getDistance());
 		}
+		//*/
+		
+		// to just enumerate, uncomment below
+		//*
+		for (long i = 0;  true ; i++) {
+			Regex re= e.getNext();
+			if (re.getDistance() > largestDistance) {
+				largestDistance = re.getDistance();
+				System.out.println(largestDistance + " after " + i);
+			}
+		}
+		//*/
 			
 	}
 
