@@ -1,4 +1,4 @@
-
+package regex;
 /**
  * 
  * A general node in the regex tree. 
@@ -9,13 +9,25 @@
 
 public class Node {
 	
+	// The node parent
 	private Node parent;
 	
+	/**
+	 * Basic Constructor
+	 * @param parent
+	 */
 	public Node(Node parent) {
 		this.parent = parent;
 	}
 	
-	// Copy Constructor
+	/**
+	 * Copy constructor
+	 * 
+	 * @param other the node we want to copy
+	 * @param parent the parent of the new node we are creating
+	 * @param re The regular expression tree this new node is in
+	 * @param otherRE The regular expression the other node is in
+	 */
 	public Node (Node other, Node parent, Regex re, Regex otherRE) {
 		this.parent = parent;
 		if (other == otherRE.getChangeNode())

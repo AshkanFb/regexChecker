@@ -1,10 +1,11 @@
+package regex;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.Stack;
 
 /**
  * 
- * This class represents a regular expression.
+ * This class represents a regular expression as a tree.
  * 
  * @author Ashkan Forouhi ashkanfb@cs.wisc.edu
  *
@@ -41,6 +42,11 @@ public class Regex {
 	// shows whether or not we have entered the refining process
 	private boolean refiningStartedFlag;
 
+	/**
+	 * Constructor from a string
+	 * 
+	 * @param regex regular expression string
+	 */
 	public Regex (String regex) {
 
 		alphabet = new ArrayList<Character>();
@@ -62,7 +68,11 @@ public class Regex {
 		refiningStartedFlag = false;
 	}
 
-	//Copy Constructor
+	/**
+	 * Copy Constructor
+	 * 
+	 * @param re
+	 */
 	public Regex (Regex re) {
 
 		alphabet = new ArrayList<Character> ();
@@ -88,13 +98,18 @@ public class Regex {
 		}
 	}
 
-
+	/**
+	 * adds dots for concatenation to the string (used for initial parsing)
+	 * 
+	 * @param regex a regular expression
+	 * @return the input regex with dots inserted in it 
+	 */
 	private static String addDots (String regex) {
 		for (int i = 1; i < regex.length(); i++) {
 			char c = regex.charAt(i);
 			char c1= regex.charAt(i - 1);
-			if ((Character.isAlphabetic(c) || c == '(') 
-					&& (Character.isAlphabetic(c1) || c1 == ')' || c == '*')) {
+			if ((Character.isAlphabetic(c) || c == '(' || c == EPS) 
+				&& (Character.isAlphabetic(c1) || c1 == ')' || c1 == '*' || c1 == EPS)) {
 				regex = regex.substring(0, i) + "." + regex.substring(i);
 			}
 		}
@@ -102,6 +117,12 @@ public class Regex {
 		return regex;
 	}
 
+	/**
+	 * changes the regex to infix (for initial parsing)
+	 * 
+	 * @param regex a regular expression
+	 * @return infix version of the input
+	 */
 	private static String toInfix (String regex) {
 		Stack<Character> stack = new Stack<Character>();
 		String infix = "";
@@ -143,6 +164,14 @@ public class Regex {
 		return infix;
 	}
 
+	/**
+	 * Recursively parses a string regular expression and converts it to a tree
+	 * 
+	 * @param regex a string infix regular expression
+	 * @param parent parent of the root node
+	 * @param alphabet the regex alphabet (will be updated by method)
+	 * @return the root of the generated tree
+	 */
 	private static Node treeMaker (String regex, Node parent, 
 			ArrayList<Character> alphabet) {
 		char ch = regex.charAt(parserIndex);
@@ -184,7 +213,11 @@ public class Regex {
 		return current;
 	}
 
-
+	/**
+	 * enumerates regular expressions that can be created in one step from this
+	 * 
+	 * @return an Arraylis of generated regexes
+	 */
 	public ArrayList<Regex> enumeratePossibleChanges() {
 		Regex base = new Regex(this);	// we don't want to change 'this'!
 		ArrayList<Regex> ret;
@@ -199,6 +232,11 @@ public class Regex {
 		return ret;
 	}
 
+	/**
+	 * Enumerates possible modifying changes
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
 	private ArrayList<Regex> modEnum() {
 		switch (changeRoot.getClass().getName()) {
 			case "DisNode":
@@ -214,7 +252,11 @@ public class Regex {
 		}
 	}
 
-
+	/**
+	 * Enumerates possible modifying changes (change root is disjunction)
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
 	private ArrayList<Regex> disNodeModEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
 
@@ -256,6 +298,11 @@ public class Regex {
 		return ret;
 	}
 
+	/**
+	 * Enumerates possible modifying changes (change root is concatenation)
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
 	private ArrayList<Regex> dotNodeModEnum(Node alreadyEnumeratedChild) {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
 
@@ -305,6 +352,11 @@ public class Regex {
 		return ret;
 	}
 
+	/**
+	 * Enumerates possible modifying changes (change root is Kleene star)
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
 	private ArrayList<Regex> starNodeModEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
 
@@ -331,6 +383,11 @@ public class Regex {
 		return ret;
 	}
 
+	/**
+	 * Enumerates possible modifying changes (change root is an alphabet char)
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
 	private ArrayList<Regex> alphNodeModEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
 
@@ -357,6 +414,11 @@ public class Regex {
 		return ret;
 	}
 
+	/**
+	 * Enumerates possible expanding changes
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
 	private ArrayList<Regex> expEnum() {
 		switch (changeRoot.getClass().getName()) {
 			case "DisNode":
@@ -371,7 +433,12 @@ public class Regex {
 				return null;
 		}
 	}
-
+	
+	/**
+	 * Enumerates possible expanding changes (change root is disjunction)
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
 	private ArrayList<Regex> disNodeExpEnum(Node alreadyEnumeratedChild) {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
 
@@ -413,6 +480,11 @@ public class Regex {
 		return ret;
 	}
 
+	/**
+	 * Enumerates possible expanding changes (change root is concatenation)
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
 	private ArrayList<Regex> dotNodeExpEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
 
@@ -450,6 +522,11 @@ public class Regex {
 		return ret;
 	}
 
+	/**
+	 * Enumerates possible expanding changes (change root is Kleene Star)
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
 	private ArrayList<Regex> starNodeExpEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
 
@@ -473,6 +550,11 @@ public class Regex {
 		return ret;
 	}
 
+	/**
+	 * Enumerates possible expanding changes (change root is an alphabet char)
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
 	private ArrayList<Regex> alphNodeExpEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
 
@@ -490,73 +572,148 @@ public class Regex {
 		return ret;
 	}
 
+	/**
+	 * Setter for changeNode
+	 * 
+	 * @param changeNode
+	 */
 	public void setChangeNode(Node changeNode) {
 		this.changeNode = changeNode;
 	}
 
+	/**
+	 * Setter for ExpChangeNode
+	 * 
+	 * @param expChangeNode
+	 */
 	public void setExpChangeNode(Node expChangeNode) {
 		this.expChangeNode = expChangeNode;
 	}
 
+	/**
+	 * Setter for changeRoot
+	 * 
+	 * @param changeRoot
+	 */
 	public void setChangeRoot(Node changeRoot) {
 		this.changeRoot = changeRoot;
 	}
 
+	/** 
+	 * Setter for modRangeRoot
+	 * 
+	 * @param modRangeRoot
+	 */
 	public void setModRangeRoot(Node modRangeRoot) {
 		this.modRangeRoot = modRangeRoot;
 	}
 
+	/**
+	 * getter for changeNode
+	 * 
+	 * @return changeNode
+	 */
 	public Node getChangeNode() {
 		return changeNode;
 	}
 
+	/**
+	 * Getter for ExpChangeNode
+	 * 
+	 * @return ExpChangeNode
+	 */
 	public Node getExpChangeNode() {
 		return expChangeNode;
 	}
 
+	/**
+	 * Getter for changeRoot
+	 * 
+	 * @return changeRoot
+	 */
 	public Node getChangeRoot() {
 		return changeRoot;
 	}
 
+	/**
+	 * Getter for modRangeRoot
+	 * 
+	 * @return modRangeRoot
+	 */
 	public Node getModRangeRoot() {
 		return modRangeRoot;
 	}
 
-	private void replaceNode (Node prev, Node next) {
-		if (prev.getParent() != null) 
-			prev.getParent().replaceChild(prev, next);
+	/**
+	 * Replaces a node in the tree with a new one
+	 * 
+	 * @param oldNode the old node
+	 * @param newNode the new node
+	 */
+	private void replaceNode (Node oldNode, Node newNode) {
+		if (oldNode.getParent() != null) 
+			oldNode.getParent().replaceChild(oldNode, newNode);
 		else
-			root = next;
-		if (changeNode == prev)
-			changeNode = next;
-		if (expChangeNode == prev)
-			expChangeNode = next;
-		if (changeRoot == prev)
-			changeRoot = next;
-		if (modRangeRoot == prev)
-			modRangeRoot = next;
+			root = newNode;
+		if (changeNode == oldNode)
+			changeNode = newNode;
+		if (expChangeNode == oldNode)
+			expChangeNode = newNode;
+		if (changeRoot == oldNode)
+			changeRoot = newNode;
+		if (modRangeRoot == oldNode)
+			modRangeRoot = newNode;
 	}
 
+	/**
+	 * Gets the no of change made to this regex so far
+	 * 
+	 * @return no of change made to this regex so far
+	 */
 	public int getDistance() {
 		return distance;
 	}
 	
+	/**
+	 * Have we started refining?
+	 * 
+	 * @return the value of the flag
+	 */
 	public boolean isRefiningStarted() {
 		return refiningStartedFlag;
 	}
 	
+	/**
+	 * Is this regex ready to start refining?
+	 * 
+	 * @return value of the flag
+	 */
 	public boolean isReadyToRefine() {
 		return readyToRefineFlag;
 	}
 	
+	/**
+	 * Sets if we are ready to refine
+	 * 
+	 * @param readyToRefineFlag the flag value
+	 */
 	public void setReadyToRefineFlag(boolean readyToRefineFlag) {
 		this.readyToRefineFlag = readyToRefineFlag;
 	}
 	
+	/**
+	 * Returns the regex alphabet
+	 * 
+	 * @return
+	 */
 	public ArrayList<Character> getAlphabet() {
 		return alphabet;
 	}
 
+	/**
+	 * The regex as a string (this might be a bit different from the 
+	 * constructor input!)
+	 */
 	@Override
 	public String toString() {
 		return root.toString();

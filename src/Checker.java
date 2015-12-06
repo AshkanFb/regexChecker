@@ -1,5 +1,7 @@
 import java.util.Scanner;
 
+import regex.Regex;
+
 /**
  * 
  * Main class for the checker.
@@ -13,18 +15,28 @@ public class Checker {
 	public static void main(String[] args) {
 		
 		Scanner in = new Scanner (System.in);
+		System.out.print("Enter Target Regex: ");
+		String target = in.nextLine();
 		System.out.print("Enter Regex: ");
-		
 		String s = in.nextLine();
-		Regex r = new Regex(s);
 		
-		Enumerator e = new Enumerator(s, s);
+		Enumerator e = new Enumerator(target , s);
 		int largestDistance = 0;
 		
-		// to see enumerations, uncomment below
+		// Uncomment below for checker in practice
+		//*
+		Regex re = e.getNext();
+		System.out.println(s + " can be changed to " + re + " in " 
+							+ re.getDistance() + " steps.");
+		System.out.println("Regexes enumerated: " + e.getTestingCounter());
+		System.out.println("Regexes validated: " + e.getValidationCounter());
+		//*/
+		
+		
+		// to see first few enumerations, uncomment below
 		/*
 		for (long i = 0; i < 1000 ; i++) {
-			Regex re= e.getNext();
+			Regex re= e.getNextInQueue();
 			if (re.getDistance() > largestDistance) {
 				largestDistance = re.getDistance();
 				System.out.println(largestDistance + " after " + i);
@@ -33,11 +45,11 @@ public class Checker {
 		}
 		//*/
 		
-		// to just enumerate, uncomment below
-		//*
+		// to see enumeration count, uncomment below
+		/*
 		for (long i = 0; true; i++) {
-			Regex re= e.getNext();
-			
+			Regex re= e.getNextIQueue();
+						
 			if (re.getDistance() > largestDistance) {
 				largestDistance = re.getDistance();
 				System.out.println(largestDistance + " after " + i);
@@ -45,6 +57,7 @@ public class Checker {
 		}
 		//*/
 			
+		in.close();
 	}
 
 }

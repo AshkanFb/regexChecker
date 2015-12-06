@@ -1,4 +1,4 @@
-
+package regex;
 /**
  * 
  * An alphabet/epsilon node.
@@ -9,14 +9,26 @@
 
 public class AlphNode extends Node {
 	
+	// The alphabetic value (a character, or epsilon)
 	private char val;
 
+	/**
+	 * Basic Constructor
+	 * @param parent
+	 */
 	public AlphNode(Node parent, char c) {
 		super(parent);
 		val = c;
 	}
 	
-	// Copy Constructor
+	/**
+	 * Copy constructor
+	 * 
+	 * @param other the node we want to copy
+	 * @param parent the parent of the new node we are creating
+	 * @param re The regular expression tree this new node is in
+	 * @param otherRE The regular expression the other node is in
+	 */
 	public AlphNode(AlphNode other, Node parent, Regex re, Regex otherRE) {
 		super(other, parent, re, otherRE);
 		val = other.val;	
