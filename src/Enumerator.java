@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+import dk.brics.automaton.*;
+
 
 /**
  * This class is the regular expression enumerator. We start with an initial
@@ -12,7 +14,8 @@ import java.util.regex.Pattern;
 
 public class Enumerator {
 	private Regex initial;
-	private Regex target;
+	private String targetString;
+	private Automaton targetDFA;
 	private ArrayList<String> positiveTests;
 	private ArrayList<String> negativeTests;
 	private ArrayList<Regex> list;
@@ -20,24 +23,17 @@ public class Enumerator {
 	
 	public Enumerator (String targetRegex, String inputRegex) {
 		initial = new Regex(inputRegex);
-		target = new Regex(targetRegex);
-		positiveTests = createPositiveTests();
-		negativeTests = createNegativeTests();
+		targetString = targetRegex;
+		RegExp targetRE = new RegExp(targetString.replace(Regex.EPS+"", "()"));
+		targetDFA = targetRE.toAutomaton();
+		setTests();
 		list = new ArrayList<Regex>();
 		list.add(initial);
 		currentIndex = 0;
 	}
 	
-	private ArrayList<String> createPositiveTests() {
+	private void setTests() {
 		// TODO Fill this out!
-		ArrayList<String> ret = new ArrayList<String> ();
-		return ret;
-	}
-	
-	private ArrayList<String> createNegativeTests() {
-		// TODO Fill this out!
-		ArrayList<String> ret = new ArrayList<String> ();
-		return ret;
 	}
 	
 	public Regex getNextInQueue() {
