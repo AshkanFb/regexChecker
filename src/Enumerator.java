@@ -23,6 +23,9 @@ public class Enumerator {
 	private HashSet<String> negativeTests;
 	private ArrayList<Regex> list;
 	private int currentIndex;
+	private int testingCounter;
+	private int validationCounter;
+	
 	
 	public Enumerator (String targetRegex, String inputRegex) {
 		System.setProperty("dk.brics.automaton.debug", "true");
@@ -43,10 +46,11 @@ public class Enumerator {
 		list = new ArrayList<Regex>();
 		list.add(initial);
 		currentIndex = 0;
+		testingCounter = 0;
+		validationCounter = 0;
 	}
 	
 	private void setTests() {
-		// TODO Fill this out!
 		
 		Automaton tDFA = targetDFA.clone();
 		positiveTests = new HashSet<String>();
@@ -104,6 +108,7 @@ public class Enumerator {
 	}
 	
 	public Regex getNextInQueue() {
+		testingCounter++;
 		if (currentIndex == list.size()) {
 			enumerate();
 			currentIndex--;
@@ -115,6 +120,7 @@ public class Enumerator {
 	}
 	
 	public Regex getNextTestPasser() {
+		validationCounter++;
 		Regex answer = null;
 		while (answer == null) {
 			Regex re = getNextInQueue();
@@ -140,7 +146,20 @@ public class Enumerator {
 	}
 	
 	public boolean validateEquivalence(Regex re) {
-		// TODO Fill this out! :)
+		RegExp test = new RegExp(re.toString().replace(Regex.EPS+"", "()"));
+		Automaton testDFA = test.toAutomaton();
+		String posEx = targetDFA.minus(testDFA).getShortestExample(true);
+		if (posEx != null){
+			positiveTests.add(posEx);
+			return false;
+		}
+		else {
+			String negEx = testDFA.minus(targetDFA).getShortestExample(true);
+			if (negEx != null) {
+				negativeTests.add(negEx);
+				return false;
+			}
+		}
 		return true;
 	}
 
@@ -163,6 +182,14 @@ public class Enumerator {
 			if (re.matcher(test).matches())
 				return false;
 		return true;
+	}
+	
+	public int getTestingCounter() {
+		return testingCounter;
+	}
+	
+	public int getValidationCounter() {
+		return validationCounter;
 	}
 
 }
