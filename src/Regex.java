@@ -552,6 +552,10 @@ public class Regex {
 	public void setReadyToRefineFlag(boolean readyToRefineFlag) {
 		this.readyToRefineFlag = readyToRefineFlag;
 	}
+	
+	public ArrayList<Character> getAlphabet() {
+		return alphabet;
+	}
 
 	@Override
 	public String toString() {
