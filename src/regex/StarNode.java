@@ -33,13 +33,13 @@ public class StarNode extends Node {
 	public StarNode(StarNode other, Node parent, Regex re, Regex otherRE) {
 		super(other, parent, re, otherRE);
 
-		if (other.child.getClass().getName().equals("DisNode"))
+		if (other.child.getClass().getName().equals("regex.DisNode"))
 			child = new DisNode((DisNode)other.child, this, re, otherRE);
-		else if (other.child.getClass().getName().equals("DotNode")) 
+		else if (other.child.getClass().getName().equals("regex.DotNode")) 
 			child = new DotNode((DotNode)other.child, this, re, otherRE);
-		else if (other.child.getClass().getName().equals("StarNode")) 
+		else if (other.child.getClass().getName().equals("regex.StarNode")) 
 			child = new StarNode((StarNode)other.child, this, re, otherRE);
-		else if (other.child.getClass().getName().equals("AlphNode")) 
+		else if (other.child.getClass().getName().equals("regex.AlphNode")) 
 			child = new AlphNode((AlphNode)other.child, this, re, otherRE);
 
 	}
@@ -60,7 +60,7 @@ public class StarNode extends Node {
 	@Override
 	public void eatChildren() {
 		child.eatChildren();
-		if (child.getClass().getName().equals("StarNode")) {
+		if (child.getClass().getName().equals("regex.StarNode")) {
 			StarNode sn = (StarNode)child;
 			child = sn.child;
 		}	

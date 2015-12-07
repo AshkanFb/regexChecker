@@ -23,18 +23,25 @@ public class DisNode extends Node {
 		children = new ArrayList<Node>();
 	}
 	
-	// Copy Constructor
+	/**
+	 * Copy constructor
+	 * 
+	 * @param other the node we want to copy
+	 * @param parent the parent of the new node we are creating
+	 * @param re The regular expression tree this new node is in
+	 * @param otherRE The regular expression the other node is in
+	 */
 	public DisNode(DisNode other, Node parent, Regex re, Regex otherRE) {
 		super(other, parent, re, otherRE);
 		children = new ArrayList<Node>();
 		for (Node ch : other.children) {
-			if (ch.getClass().getName().equals("DisNode"))
+			if (ch.getClass().getName().equals("regex.DisNode"))
 				children.add(new DisNode((DisNode)ch, this, re, otherRE));
-			else if (ch.getClass().getName().equals("DotNode")) 
+			else if (ch.getClass().getName().equals("regex.DotNode")) 
 				children.add(new DotNode((DotNode)ch, this, re, otherRE));
-			else if (ch.getClass().getName().equals("StarNode")) 
+			else if (ch.getClass().getName().equals("regex.StarNode")) 
 				children.add(new StarNode((StarNode)ch, this, re, otherRE));
-			else if (ch.getClass().getName().equals("AlphNode")) 
+			else if (ch.getClass().getName().equals("regex.AlphNode")) 
 				children.add(new AlphNode((AlphNode)ch, this, re, otherRE));	
 		}	
 	}
@@ -58,7 +65,7 @@ public class DisNode extends Node {
 	public void eatChildren() {
 		for (int i = 0; i < children.size(); i++) {
 			children.get(i).eatChildren();
-			if (children.get(i).getClass().getName().equals("DisNode")) {
+			if (children.get(i).getClass().getName().equals("regex.DisNode")) {
 				DisNode dn = (DisNode)children.get(i);
 		
 				for(int j = 0; j < dn.children.size(); j++) {

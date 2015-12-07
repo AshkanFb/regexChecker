@@ -14,7 +14,7 @@ import java.util.Stack;
 public class Regex {
 	// TODO avoid having epsilon in concatenations
 	// TODO avoid having disjunction with similar children
-	// TODO implement star add changes
+	// TODO avoid re-modifying already-modified characters (are we doing this?)
 	// TODO implement refining changes
 
 	// I pretend that 235 is epsilon :)
@@ -83,16 +83,16 @@ public class Regex {
 		refiningStartedFlag = re.refiningStartedFlag;
 
 		switch (re.root.getClass().getName()) {
-			case "DisNode":
+			case "regex.DisNode":
 				root = new DisNode((DisNode)re.root, null, this, re);
 				break;
-			case "DotNode":
+			case "regex.DotNode":
 				root = new DotNode((DotNode)re.root, null, this, re);
 				break;
-			case "StarNode":
+			case "regex.StarNode":
 				root = new StarNode((StarNode)re.root, null, this, re);
 				break;
-			case "AlphNode":
+			case "regex.AlphNode":
 				root = new AlphNode((AlphNode)re.root, null, this, re);
 				break;
 		}
@@ -109,7 +109,8 @@ public class Regex {
 			char c = regex.charAt(i);
 			char c1= regex.charAt(i - 1);
 			if ((Character.isAlphabetic(c) || c == '(' || c == EPS) 
-				&& (Character.isAlphabetic(c1) || c1 == ')' || c1 == '*' || c1 == EPS)) {
+					&& (Character.isAlphabetic(c1) || c1 == ')' || c1 == '*' 
+					|| c1 == EPS)) {
 				regex = regex.substring(0, i) + "." + regex.substring(i);
 			}
 		}
@@ -225,6 +226,7 @@ public class Regex {
 		base.distance++;
 		base.changeRoot = base.modRangeRoot;
 		ret = base.modEnum();
+		ret.addAll(base.starEnum());
 
 		base.changeRoot = base.root;
 		ret.addAll(base.expEnum());
@@ -239,13 +241,13 @@ public class Regex {
 	 */
 	private ArrayList<Regex> modEnum() {
 		switch (changeRoot.getClass().getName()) {
-			case "DisNode":
+			case "regex.DisNode":
 				return disNodeModEnum();
-			case "DotNode":
+			case "regex.DotNode":
 				return dotNodeModEnum(null);
-			case "StarNode":
+			case "regex.StarNode":
 				return starNodeModEnum();
-			case "AlphNode":
+			case "regex.AlphNode":
 				return alphNodeModEnum();
 			default:
 				return null;
@@ -285,7 +287,8 @@ public class Regex {
 		}
 
 		if (changeRoot.getParent() == null || 
-				!changeRoot.getParent().getClass().getName().equals("DotNode")) {
+				!changeRoot.getParent().getClass().getName()
+				.equals("regex.DotNode")) {
 			Regex temp = new Regex(this);
 			Node oldNode = temp.changeRoot;
 			DotNode node = new DotNode(oldNode.getParent());
@@ -347,6 +350,7 @@ public class Regex {
 			temp.changeRoot = newNode;
 			temp.changeNode = newNode;
 			ret.addAll(temp.alphNodeModEnum());
+
 		}
 
 		return ret;
@@ -370,7 +374,8 @@ public class Regex {
 		}
 
 		if (changeRoot.getParent() == null || 
-				!changeRoot.getParent().getClass().getName().equals("DotNode")) {
+				!changeRoot.getParent().getClass().getName()
+				.equals("regex.DotNode")) {
 			Regex temp = new Regex(this);
 			Node oldNode = temp.changeRoot;
 			DotNode node = new DotNode(oldNode.getParent());
@@ -401,7 +406,7 @@ public class Regex {
 		}
 
 		if (changeRoot.getParent() == null || 
-				!changeRoot.getParent().getClass().getName().equals("DotNode")) {
+				!changeRoot.getParent().getClass().getName().equals("regex.DotNode")) {
 			Regex temp = new Regex(this);
 			Node oldNode = temp.changeRoot;
 			DotNode node = new DotNode(oldNode.getParent());
@@ -415,25 +420,165 @@ public class Regex {
 	}
 
 	/**
+	 * Enumerates possible Star changes
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
+	private ArrayList<Regex> starEnum() {
+		switch (changeRoot.getClass().getName()) {
+			case "regex.DisNode":
+				return disNodeStarEnum();
+			case "regex.DotNode":
+				return dotNodeStarEnum();
+			case "regex.StarNode":
+				return new ArrayList<Regex> ();
+			case "regex.AlphNode":
+				return alphNodeStarEnum();
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Enumerates possible modifying changes (change root is disjunction)
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
+	private ArrayList<Regex> disNodeStarEnum() {
+		ArrayList<Regex> ret = new ArrayList<Regex> ();
+
+		//find the enumeration starting position, based on changeNode
+		int startPos = 0;
+		if (changeRoot != changeNode) {
+			Node child = changeNode;
+			Node parent = changeNode.getParent();
+			while (parent != changeRoot) {
+				child = parent;
+				parent = child.getParent();
+			}
+			startPos = ((DisNode)changeRoot).getChildIndex(child);
+		}
+
+		for (int i = startPos; i < changeRoot.getSize(); i++) {
+			// Recursively call for all children
+			Regex temp = new Regex(this);
+			temp.changeRoot = ((DisNode)(temp.changeRoot)).getChild(i);
+			if (i != startPos || changeRoot == changeNode)
+				temp.changeNode = temp.changeRoot;
+			ret.addAll(temp.starEnum());
+
+		}
+
+		// Add star to the node itself
+		if (changeRoot.getParent() == null || 
+				!changeRoot.getParent().getClass().getName()
+				.equals("regex.StarNode")) {
+			Regex temp = new Regex(this);
+			Node oldNode = temp.changeRoot;
+			StarNode node = new StarNode(oldNode.getParent());
+			node.setChild(oldNode);
+			temp.replaceNode(oldNode, node);
+			oldNode.setParent(node);
+			ret.add(temp);
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Enumerates possible modifying changes (change root is concatenation)
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
+	private ArrayList<Regex> dotNodeStarEnum() {
+		ArrayList<Regex> ret = new ArrayList<Regex> ();
+
+		//find the enumeration starting position, based on changeNode
+		int startPos = 0;
+		if (changeRoot != changeNode) {
+			Node child = changeNode;
+			Node parent = changeNode.getParent();
+			while (parent != changeRoot) {
+				child = parent;
+				parent = child.getParent();
+			}
+			startPos = ((DotNode)changeRoot).getChildIndex(child);
+		}
+
+		for (int i = startPos; i < changeRoot.getSize(); i++) {
+			// Recursively call for all children
+			Regex temp = new Regex(this);
+			temp.changeRoot = ((DotNode)(temp.changeRoot)).getChild(i);
+			if (i != startPos || changeRoot == changeNode)
+				temp.changeNode = temp.changeRoot;
+			ret.addAll(temp.starEnum());
+
+		}
+
+		// Add star to the node itself
+		if (changeRoot.getParent() == null || 
+				!changeRoot.getParent().getClass().getName()
+				.equals("regex.StarNode")) {
+			Regex temp = new Regex(this);
+			Node oldNode = temp.changeRoot;
+			StarNode node = new StarNode(oldNode.getParent());
+			node.setChild(oldNode);
+			temp.replaceNode(oldNode, node);
+			oldNode.setParent(node);
+			ret.add(temp);
+		}
+
+		return ret;
+	}
+
+
+	/**
+	 * Enumerates possible modifying changes (change root is an alphabet char)
+	 * 
+	 * @return an Arraylist of generated regexes
+	 */
+	private ArrayList<Regex> alphNodeStarEnum() {
+		ArrayList<Regex> ret = new ArrayList<Regex> ();
+
+		// No point in adding star to epsilon!
+		if (((AlphNode)changeRoot).getChar() == EPS)
+			return ret;
+
+		if (changeRoot.getParent() == null || 
+				!changeRoot.getParent().getClass().getName()
+				.equals("regex.StarNode")) {
+			Regex temp = new Regex(this);
+			Node oldNode = temp.changeRoot;
+			StarNode node = new StarNode(oldNode.getParent());
+			node.setChild(oldNode);
+			temp.replaceNode(oldNode, node);
+			oldNode.setParent(node);
+			ret.add(temp);
+		}
+
+		return ret;
+	}
+
+	/**
 	 * Enumerates possible expanding changes
 	 * 
 	 * @return an Arraylist of generated regexes
 	 */
 	private ArrayList<Regex> expEnum() {
 		switch (changeRoot.getClass().getName()) {
-			case "DisNode":
+			case "regex.DisNode":
 				return disNodeExpEnum(null);
-			case "DotNode":
+			case "regex.DotNode":
 				return dotNodeExpEnum();
-			case "StarNode":
+			case "regex.StarNode":
 				return starNodeExpEnum();
-			case "AlphNode":
+			case "regex.AlphNode":
 				return alphNodeExpEnum();
 			default:
 				return null;
 		}
 	}
-	
+
 	/**
 	 * Enumerates possible expanding changes (change root is disjunction)
 	 * 
@@ -509,7 +654,7 @@ public class Regex {
 		}
 
 		if (changeRoot.getParent() == null || 
-				!changeRoot.getParent().getClass().getName().equals("DisNode")) {
+				!changeRoot.getParent().getClass().getName().equals("regex.DisNode")) {
 			Regex temp = new Regex(this);
 			Node oldNode = temp.changeRoot;
 			DisNode node = new DisNode(oldNode.getParent());
@@ -537,7 +682,7 @@ public class Regex {
 		ret.addAll(temp.expEnum());
 
 		if (changeRoot.getParent() == null || 
-				!changeRoot.getParent().getClass().getName().equals("DisNode")) {
+				!changeRoot.getParent().getClass().getName().equals("regex.DisNode")) {
 			temp = new Regex(this);
 			Node oldNode = temp.changeRoot;
 			DisNode node = new DisNode(oldNode.getParent());
@@ -559,7 +704,7 @@ public class Regex {
 		ArrayList<Regex> ret = new ArrayList<Regex> ();
 
 		if (changeRoot.getParent() == null || 
-				!changeRoot.getParent().getClass().getName().equals("DisNode")) {
+				!changeRoot.getParent().getClass().getName().equals("regex.DisNode")) {
 			Regex temp = new Regex(this);
 			Node oldNode = temp.changeRoot;
 			DisNode node = new DisNode(oldNode.getParent());
@@ -673,7 +818,7 @@ public class Regex {
 	public int getDistance() {
 		return distance;
 	}
-	
+
 	/**
 	 * Have we started refining?
 	 * 
@@ -682,7 +827,7 @@ public class Regex {
 	public boolean isRefiningStarted() {
 		return refiningStartedFlag;
 	}
-	
+
 	/**
 	 * Is this regex ready to start refining?
 	 * 
@@ -691,7 +836,7 @@ public class Regex {
 	public boolean isReadyToRefine() {
 		return readyToRefineFlag;
 	}
-	
+
 	/**
 	 * Sets if we are ready to refine
 	 * 
@@ -700,7 +845,7 @@ public class Regex {
 	public void setReadyToRefineFlag(boolean readyToRefineFlag) {
 		this.readyToRefineFlag = readyToRefineFlag;
 	}
-	
+
 	/**
 	 * Returns the regex alphabet
 	 * 
