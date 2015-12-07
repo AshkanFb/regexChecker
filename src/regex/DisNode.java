@@ -95,4 +95,9 @@ public class DisNode extends Node {
 	public int getChildIndex(Node child) {
 		return children.indexOf(child);
 	}
+
+	public void removeChild(int i) {
+		children.remove(i);
+		
+	}
 }

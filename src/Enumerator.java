@@ -161,6 +161,9 @@ public class Enumerator {
 					answer = re;
 				}
 			}
+			else {
+				re.setReadyToRefineFlag(false);
+			}
 		}
 		return answer;
 	}

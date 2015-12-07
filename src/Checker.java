@@ -24,7 +24,7 @@ public class Checker {
 		int largestDistance = 0;
 		
 		// Uncomment below for checker in practice
-		//*
+		/*
 		Regex re = e.getNext();
 		System.out.println(s + " can be changed to " + re + " in " 
 							+ re.getDistance() + " steps.");
@@ -46,9 +46,9 @@ public class Checker {
 		//*/
 		
 		// to see enumeration count, uncomment below
-		/*
+		//*
 		for (long i = 0; true; i++) {
-			Regex re= e.getNextIQueue();
+			Regex re= e.getNextInQueue();
 						
 			if (re.getDistance() > largestDistance) {
 				largestDistance = re.getDistance();
@@ -56,8 +56,6 @@ public class Checker {
 			}
 		}
 		//*/
-			
-		in.close();
 	}
 
 }
