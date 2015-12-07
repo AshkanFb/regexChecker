@@ -209,13 +209,15 @@ public class Enumerator {
 	}
 
 	/**
-	 * Pops oneregex fromthe beginning of the queue and adds all possible 
+	 * Pops one regex from the beginning of the queue and adds all possible 
 	 * changes to the end of the queue
 	 */
 	private void enumerate() {
 		Regex start = list.get(0);
 		list.remove(0);
 //		System.out.println(">> Enumerating " + start);
+		if (start.toString().equals("a*"))
+			System.out.println("Hi");
 		list.addAll(start.enumeratePossibleChanges());
 	}
 	
