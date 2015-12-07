@@ -1,6 +1,5 @@
 package regex;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EmptyStackException;
 import java.util.Stack;
 
@@ -15,7 +14,7 @@ import java.util.Stack;
 public class Regex {
 	// TODO avoid having epsilon in concatenations
 	// TODO avoid having disjunction with similar children
-	// TODO avoid re-modifying already-modified characters (are we doing this?)
+	// TODO avoid re-modifying already-modified characters (am I doing this?)
 
 	// I pretend that 235 is epsilon :)
 	public static final char EPS = 235;
@@ -240,7 +239,7 @@ public class Regex {
 		else if (base.readyToRefineFlag) {
 			ret.addAll(base.refEnum());
 		}
-		
+
 
 		return ret;
 	}
@@ -625,11 +624,23 @@ public class Regex {
 		for (char ch : alphabet) {
 			Regex temp = new Regex(this);
 			AlphNode newNode = new AlphNode (temp.changeRoot, ch);
-			((DisNode)(temp.changeRoot)).addChild(newNode);
-			temp.modRangeRoot = newNode;
-			temp.changeNode = newNode;
-			temp.expChangeNode = newNode;
-			ret.add(temp);
+			boolean alreadyExists = false;
+			for (int i = 0; i < changeRoot.getSize(); i++) {
+				Node n = ((DisNode)(temp.changeRoot)).getChild(i);
+				if ((n.getClass().getName().equals("regex.AlphNode") 
+						&& ch == ((AlphNode)n).getChar()) 
+						|| (n.getClass().getName().equals("regex.StarNode") 
+								&& ch == EPS)) {
+					alreadyExists = true;
+				}
+			}
+			if (!alreadyExists) {
+				((DisNode)(temp.changeRoot)).addChild(newNode);
+				temp.modRangeRoot = newNode;
+				temp.changeNode = newNode;
+				temp.expChangeNode = newNode;
+				ret.add(temp);
+			}
 		}
 
 
@@ -727,7 +738,7 @@ public class Regex {
 
 		return ret;
 	}
-	
+
 	/**
 	 * Enumerates possible refining changes
 	 * 
@@ -755,15 +766,28 @@ public class Regex {
 	 */
 	private ArrayList<Regex> disNodeRefEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex>();
-		
-		for (int i = 0; i < ((DisNode)changeRoot).getSize(); i++) {
+
+		if (changeRoot.getSize() == 1) {
 			Regex temp = new Regex(this);
-			temp.changeRoot = ((DisNode)(temp.changeRoot)).getChild(i);
+			temp.changeRoot = ((DisNode)(temp.changeRoot)).getChild(0);
 			ret.addAll(temp.refEnum());
-			((DisNode)(temp.changeRoot)).removeChild(i);
-			ret.add(temp);
 		}
-		
+		else {
+			for (int i = 0; i < changeRoot.getSize(); i++) {
+				Regex temp = new Regex(this);
+				temp.changeRoot = ((DisNode)(temp.changeRoot)).getChild(i);
+				ret.addAll(temp.refEnum());
+				
+				temp = new Regex(this);
+				((DisNode)(temp.changeRoot)).removeChild(i);
+				if (temp.changeRoot.getSize() == 1) {
+					Node child = ((DisNode)(temp.changeRoot)).getChild(0);
+					temp.replaceNode(temp.changeRoot, child);
+					child.setParent(child.getParent().getParent());
+				}
+				ret.add(temp);
+			}
+		}
 		return ret;
 	}
 
@@ -774,13 +798,13 @@ public class Regex {
 	 */
 	private ArrayList<Regex> dotNodeRefEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex>();
-		
+
 		for (int i = 0; i < ((DotNode)changeRoot).getSize(); i++) {
 			Regex temp = new Regex(this);
 			temp.changeRoot = ((DotNode)(temp.changeRoot)).getChild(i);
 			ret.addAll(temp.refEnum());
 		}
-		
+
 		return ret;
 	}
 
@@ -791,17 +815,17 @@ public class Regex {
 	 */
 	private ArrayList<Regex> starNodeRefEnum() {
 		ArrayList<Regex> ret = new ArrayList<Regex>();
-		
+
 		Regex temp = new Regex(this);
 		temp.changeRoot = ((StarNode)(temp.changeRoot)).getChild();
 		ret.addAll(temp.refEnum());
-		
+
 		temp = new Regex(this);
 		Node child = ((StarNode)(temp.changeRoot)).getChild();
 		temp.replaceNode(temp.changeRoot, child);
 		child.setParent(child.getParent().getParent());
 		ret.add(temp);
-		
+
 		return ret;
 	}
 
