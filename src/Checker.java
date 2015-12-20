@@ -1,3 +1,4 @@
+import java.sql.Time;
 import java.util.Scanner;
 
 import regex.Regex;
@@ -25,11 +26,14 @@ public class Checker {
 		
 		// Uncomment below for checker in practice
 		//*
+		long now = System.nanoTime();
 		Regex re = e.getNext();
+		long end = System.nanoTime();
 		System.out.println(s + " can be changed to " + re + " in " 
 							+ re.getDistance() + " steps.");
 		System.out.println("Regexes enumerated: " + e.getTestingCounter());
 		System.out.println("Regexes validated: " + e.getValidationCounter());
+		System.out.println("Elapsed time: " + ((end - now) / 1000000) + " ms");
 		//*/
 		
 		

@@ -12,7 +12,7 @@ import java.util.Stack;
  */
 
 public class Regex {
-	// TODO avoid having epsilon in concatenations 
+	// TODO a few bugs need to be fixed with refining changes
 
 	// I pretend that 235 is epsilon :)
 	public static final char EPS = 235;
